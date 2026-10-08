@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "CoursePilot",
+    "slug": "course-pilot",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "android": {
+      "package": "com.chetan.coursepilot"
+    },
+    "ios": {
+      "bundleIdentifier": "com.chetan.coursepilot"
+    }
+  }
+}

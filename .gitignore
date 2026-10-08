@@ -1,0 +1,10 @@
+node_modules/
+.expo/
+dist/
+android/
+ios/
+*.log
+.DS_Store
+.env*
+
+# Generated native projects can be recreated with: npm run prebuild
