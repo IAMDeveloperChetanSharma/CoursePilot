@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/presentation/navigation/types';
@@ -10,7 +11,12 @@ type Props = NativeStackScreenProps<RootStackParamList, 'CourseDetails'>;
 
 export default function CourseDetailsScreen({ route }: Props) {
   const { courses, loading, error, loadCourses, toggleLesson } = useCourses();
-  useEffect(() => { void loadCourses(); }, [loadCourses]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void loadCourses();
+    }, [loadCourses]),
+  );
 
   const course = courses.find((item) => item.id === route.params.courseId);
   if (loading && !course) return <View style={styles.center}><ActivityIndicator size="large" color={colors.primary} /></View>;

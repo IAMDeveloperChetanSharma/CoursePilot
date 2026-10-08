@@ -8,7 +8,7 @@ I used a lightweight **Clean Architecture / MVVM-style** structure: **Screens/Ho
 
 ## 2. Offline Support
 
-Course responses are serialized into **AsyncStorage** after a successful API load. `CourseRepositoryImpl` checks connectivity with NetInfo; when offline it returns the cached courses. Lesson completion also updates the cached course data, so the latest local progress survives an offline restart.
+Course responses are serialized into **AsyncStorage** after the first successful API load. Subsequent screen loads are cache-first, so local lesson progress is not overwritten by the static mock API. The Dashboard pull-to-refresh explicitly requests the API when online; if the network is unavailable, the repository falls back to the cache. NetInfo is used to detect offline access. Lesson completion updates the cached course data, so the latest local progress survives navigation and an app restart.
 
 ## 3. Security
 

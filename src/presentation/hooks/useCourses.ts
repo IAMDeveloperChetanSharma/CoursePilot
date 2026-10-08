@@ -22,6 +22,18 @@ export function useCourses() {
     }
   }, []);
 
+  const refreshCourses = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      setCourses(await repository.refreshCourses());
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to refresh courses.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const toggleLesson = useCallback(async (courseId: number, lessonId: number) => {
     setCourses((current) => {
       const next = current.map((course) => {
@@ -35,10 +47,12 @@ export function useCourses() {
           progress: calculateProgress(lessonList),
         };
       });
-      void repository.saveCourses(next);
+      void repository.saveCourses(next).catch(() => {
+        // UI state remains responsive; the next load will surface a storage error if needed.
+      });
       return next;
     });
   }, []);
 
-  return { courses, loading, error, loadCourses, toggleLesson };
+  return { courses, loading, error, loadCourses, refreshCourses, toggleLesson };
 }

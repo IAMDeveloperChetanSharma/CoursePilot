@@ -1,4 +1,5 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/presentation/navigation/types';
@@ -9,8 +10,15 @@ import StateView from '@/presentation/components/StateView';
 type Props = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
 
 export default function DashboardScreen({ navigation }: Props) {
-  const { courses, loading, error, loadCourses } = useCourses();
-  useEffect(() => { void loadCourses(); }, [loadCourses]);
+  const { courses, loading, error, loadCourses, refreshCourses } = useCourses();
+
+  // Re-read the repository whenever Dashboard becomes visible. Course Details
+  // persists lesson changes to AsyncStorage, so returning here shows the latest progress.
+  useFocusEffect(
+    useCallback(() => {
+      void loadCourses();
+    }, [loadCourses]),
+  );
 
   const renderCourse = useCallback(({ item }: { item: (typeof courses)[number] }) => (
     <View style={styles.card}>
@@ -26,8 +34,8 @@ export default function DashboardScreen({ navigation }: Props) {
   ), [navigation]);
 
   if (loading && courses.length === 0) return <View style={styles.center}><ActivityIndicator size="large" color={colors.primary} /><Text style={styles.loading}>Loading courses…</Text></View>;
-  if (error && courses.length === 0) return <StateView title="Couldn’t load courses" message={error} actionLabel="Try again" onAction={() => void loadCourses()} />;
-  if (!loading && courses.length === 0) return <StateView title="No courses yet" message="There are no courses available right now." actionLabel="Refresh" onAction={() => void loadCourses()} />;
+  if (error && courses.length === 0) return <StateView title="Couldn’t load courses" message={error} actionLabel="Try again" onAction={() => void refreshCourses()} />;
+  if (!loading && courses.length === 0) return <StateView title="No courses yet" message="There are no courses available right now." actionLabel="Refresh" onAction={() => void refreshCourses()} />;
 
   return (
     <FlatList
@@ -35,7 +43,7 @@ export default function DashboardScreen({ navigation }: Props) {
       keyExtractor={(item) => String(item.id)}
       renderItem={renderCourse}
       contentContainerStyle={styles.list}
-      refreshControl={<RefreshControl refreshing={loading} onRefresh={() => void loadCourses()} />}
+      refreshControl={<RefreshControl refreshing={loading} onRefresh={() => void refreshCourses()} />}
       ListHeaderComponent={<View><Text style={styles.heading}>Your learning dashboard</Text><Text style={styles.subheading}>Pick up where you left off.</Text></View>}
     />
   );
